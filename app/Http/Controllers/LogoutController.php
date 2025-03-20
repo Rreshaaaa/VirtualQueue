@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -7,16 +6,29 @@ use Illuminate\Support\Facades\Auth;
 
 class LogoutController extends Controller
 {
-    public function logout(Request $request)
+    // Student Logout
+    public function logoutStudent(Request $request)
     {
-        Auth::logout();
+        if (Auth::guard('student')->check()) {
+            Auth::guard('student')->logout();
 
-        // Invalidate the session
-        $request->session()->invalidate();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        // Regenerate the token to prevent session fixation
-        $request->session()->regenerateToken();
+            return redirect('/login');
+        }
+    }
 
-        return redirect('/login');
+    // Admin Logout
+    public function logoutAdmin(Request $request)
+    {
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/login');
+        }
     }
 }

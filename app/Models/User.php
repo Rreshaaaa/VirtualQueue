@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -15,11 +14,6 @@ class User extends Authenticatable
     public function queue()
     {
         return $this->hasOne(Queue::class)->latest();
-    }
-
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
     }
 
     public function isStudent()
@@ -36,6 +30,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role', // Keep 'role' if you want to manage multiple student roles in the future
     ];
 
     /**

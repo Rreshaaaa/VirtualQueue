@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('queues', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(); // Associate with user
+            $table->unsignedBigInteger('student_id')->nullable(); // Associate with user
             $table->string('queue_number')->unique()->nullable(); // Unique queue number
             $table->string('status')->default('pending'); // Status column added here
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
         });
     }
 

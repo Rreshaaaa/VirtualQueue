@@ -9,9 +9,9 @@ class Queue extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'status', 'queue_number'];
+    protected $fillable = ['student_id','status', 'queue_number'];
 
-    public function user()
+    public function Student()
     {
         return $this->belongsTo(User::class);
     }

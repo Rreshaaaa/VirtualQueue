@@ -18,17 +18,18 @@
     <div class="container">
         <a class="navbar-brand" href="{{ url('/') }}">My App</a>
         <div class="d-flex">
-            @guest
-                <a class="btn btn-outline-light me-2" href="{{ url('/login') }}">Login</a>
-                <a class="btn btn-primary" href="{{ url('/register') }}">Register</a>
+            @guest('student')
+                <a href="{{ route('student.login') }}" class="btn btn-primary me-2">Login</a>
+                <a href="{{ route('student.register') }}" class="btn btn-success">Register</a>
             @else
-                <a class="btn btn-outline-light me-2" href="{{ url('/dashboard') }}">Dashboard</a>
-                <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                <a href="{{ route('student.dashboard') }}" class="btn btn-secondary">Dashboard</a>
+                <form method="POST" action="{{ route('student.logout') }}" style="display:inline;">
                     @csrf
                     <button type="submit" class="btn btn-danger">Logout</button>
                 </form>
             @endguest
         </div>
+
     </div>
 </nav>
 
