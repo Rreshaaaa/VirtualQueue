@@ -1,0 +1,48 @@
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.card-body {
+    font-size: 1.2rem;
+}
+
+button {
+    font-size: 1.1rem;
+    padding: 10px;
+    border-radius: 5px;
+}
+    /* Custom styling for a smooth UI */
+    .bg-primary {
+        background-color: #4a90e2 !important;
+    }
+
+    .btn-success {
+        background-color: #77dd77;
+        border: none;
+    }
+
+    .btn-secondary {
+        background-color: #bfbfbf;
+        border: none;
+    }
+
+    .table thead {
+        border-radius: 10px;
+    }
+
+    .table th {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .table td {
+        font-size: 16px;
+        padding: 12px;
+        font-weight: bold;
+    }

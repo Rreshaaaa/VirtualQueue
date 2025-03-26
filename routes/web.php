@@ -35,7 +35,7 @@ Route::post('/admin/login', [AdminLoginController::class, 'login']);
 */
 Route::middleware('auth:student')->group(function () {
     Route::get('/queue', [QueueController::class, 'queuePage'])->name('student.queue');
-    Route::post('/queue/join', [QueueController::class, 'joinQueue'])->name('queue.join');
+    Route::match(['get', 'post'], '/queue/join', [QueueController::class, 'joinQueue'])->name('queue.join');
     Route::post('/queue/cancel', [QueueController::class, 'cancelQueue'])->name('queue.cancel');
 
 });
@@ -48,6 +48,7 @@ Route::middleware('auth:student')->group(function () {
 Route::middleware('auth:admin')->group(function () {
     Route::get('/admin/dashboard', [QueueController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::post('/queue/call-next', [QueueController::class, 'callNext'])->name('queue.callNext');
+    Route::post('/queue/done', [QueueController::class, 'markDone'])->name('queue.markDone');
 });
 
 // Student routes

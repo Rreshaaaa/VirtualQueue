@@ -4,25 +4,35 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Queue;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class QueueController extends Controller
 {
     // Student queue page method
     public function queuePage()
-    {
-        $studentQueue = auth()->guard('student')->user()->queue()->latest('id')->first();
+{
+    $studentQueue = auth()->guard('student')->user()
+        ->queue()
+        ->where('status', 'pending') // Fetch only active queues
+        ->latest('id')
+        ->first();
 
-        $queueNumber = $studentQueue ? $studentQueue->queue_number : 'N/A';
-        $isQueueActive = $studentQueue && $studentQueue->status === 'pending';
+    $queueNumber = $studentQueue ? $studentQueue->queue_number : null;
+    $isQueueActive = $studentQueue !== null; // If no active queue, set to false
 
-        $currentQueue = Queue::where('status', 'done')->latest('id')->first();
+    $pendingQueues = Queue::where('status', 'pending')->get();
+    $currentQueue = Queue::where('status', 'active')->first();
 
-        return view('student.queue', [
-            'queueNumber' => $queueNumber,
-            'currentQueue' => $currentQueue ? $currentQueue->queue_number : 'N/A',
-            'isQueueActive' => $isQueueActive
-        ]);
-    }
+    return view('student.queue', [
+        'queueNumber' => $queueNumber,
+        'currentQueue' => $currentQueue ? $currentQueue->queue_number : null,
+        'pendingQueues' => $pendingQueues,
+        'isQueueActive' => $isQueueActive
+    ]);
+}
+
 
     // Admin dashboard method
     public function adminDashboard()
@@ -38,55 +48,82 @@ class QueueController extends Controller
 
     // Join queue method
     public function joinQueue(Request $request)
-    {
-        $student = auth()->guard('student')->user();
+{
+    $student = Auth::guard('student')->user();
 
-        if ($student->queue()->where('status', 'pending')->exists()) {
-            return back()->with('error', 'You already have an active queue number.');
+    // Check if the student already has a pending queue
+    $existingQueue = $student->queue()->where('status', 'pending')->latest()->first();
+
+    if (!$existingQueue) {
+        do {
+            // Generate a unique queue number
+            $queueNumber = 'Q' . str_pad(mt_rand(1, 999), 3, '0', STR_PAD_LEFT);
+        } while (Queue::where('queue_number', $queueNumber)->exists()); // Ensure it's unique
+
+        // Create a new queue entry
+        $queue = $student->queue()->create([
+            'queue_number' => $queueNumber,
+            'status' => 'pending',
+        ]);
+    }
+
+    return redirect()->route('student.queue')->with('success', 'You have joined the queue.');
+}
+        public function markDone()
+        {
+            $currentQueue = Queue::where('status', 'active')->first();
+
+            if ($currentQueue) {
+                $currentQueue->update(['status' => 'done']);
+                return redirect()->route('admin.dashboard')->with('success', 'Queue ' . $currentQueue->queue_number . ' marked as done.');
+            }
+
+            return redirect()->route('admin.dashboard')->with('error', 'No active queue to mark as done.');
         }
 
-        $lastQueue = Queue::latest('id')->first();
-        $newQueueNumber = $lastQueue
-            ? 'Q' . str_pad((intval(substr($lastQueue->queue_number, 1)) + 1), 3, '0', STR_PAD_LEFT)
-            : 'Q001';
 
-        $queue = new Queue();
-        $queue->student_id = $student->id;
-        $queue->queue_number = $newQueueNumber;
-        $queue->status = 'pending';
-        $queue->save();
-
-        return back()->with('success', 'You have joined the queue.');
-    }
 
     // Call next queue method
     public function callNext()
-    {
+{
+    DB::transaction(function () {
+        // Find the current active queue and mark it as done
         $currentQueue = Queue::where('status', 'active')->first();
         if ($currentQueue) {
-            $currentQueue->status = 'done';
-            $currentQueue->save();
+            $currentQueue->update(['status' => 'done']);
         }
 
+        // Get the next pending queue
         $nextQueue = Queue::where('status', 'pending')->orderBy('id')->first();
 
         if ($nextQueue) {
-            $nextQueue->status = 'active';
-            $nextQueue->save();
-
-            return redirect()->route('admin.dashboard')->with('success', 'Now calling ' . $nextQueue->queue_number);
+            $nextQueue->update(['status' => 'active']);
+            session()->flash('success', 'Now calling ' . $nextQueue->queue_number);
+        } else {
+            session()->flash('error', 'No queue available.');
         }
+    });
 
-        return redirect()->route('admin.dashboard')->with('error', 'No queue available.');
-    }
+    return redirect()->route('admin.dashboard');
+}
+
 
     // Cancel queue method
-    public function cancelQueue()
-    {
-        $student = auth()->guard('student')->user();
+    public function cancelQueue(Request $request)
+{
+    $user = Auth::user(); // Ensure the user is authenticated
 
-        $student->queue()->where('status', 'pending')->delete();
+    // Fetch the user's queue entry
+    $queue = $user->queue()->where('status', 'pending')->latest()->first();
 
-        return back()->with('success', 'Your queue number has been canceled.');
+    if ($queue) {
+        $queue->update(['status' => 'cancelled']); // Update the queue status
+        return redirect()->back()->with('success', 'Queue canceled successfully.');
     }
+
+    Log::warning('No active queue found for user', ['user_id' => Auth::id()]);
+    return redirect()->back()->with('error', 'No active queue found.');
+}
+
+
 }

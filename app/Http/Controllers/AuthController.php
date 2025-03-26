@@ -13,13 +13,17 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:students',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
         $student = Student::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'middle_name' => $request->middle_name ?? null,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -27,7 +31,7 @@ class AuthController extends Controller
         // Automatically log in the student after registration
         Auth::guard('student')->login($student);
 
-        return redirect()->route('student.dashboard');
+        return redirect()->route('student.queue');
     }
 
     // Login method
@@ -39,7 +43,7 @@ class AuthController extends Controller
         ]);
 
         if (Auth::guard('student')->attempt($request->only('email', 'password'))) {
-            return redirect()->route('student.dashboard');
+            return redirect()->route('student.queue');
         }
 
         return back()->withErrors([
