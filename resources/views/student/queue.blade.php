@@ -3,6 +3,7 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="fw-bold">Queue Page</h2>
+    <p class="text-muted">Student Number: {{ Auth::user()->student_number ?? 'N/A' }}</p>
 
     <div class="row mt-3">
         <!-- Left Section: Queue List -->
