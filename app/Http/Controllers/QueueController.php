@@ -87,7 +87,7 @@ class QueueController extends Controller
     public function callNext()
 {
     DB::transaction(function () {
-        // Find the current active queue and mark it as done
+        // Mark the current active queue as done
         $currentQueue = Queue::where('status', 'active')->first();
         if ($currentQueue) {
             $currentQueue->update(['status' => 'done']);
@@ -98,7 +98,10 @@ class QueueController extends Controller
 
         if ($nextQueue) {
             $nextQueue->update(['status' => 'active']);
+
+            // Flash both success message and queue number for voice
             session()->flash('success', 'Now calling ' . $nextQueue->queue_number);
+            session()->flash('calledQueue', $nextQueue->queue_number); // 👈 This enables voice
         } else {
             session()->flash('error', 'No queue available.');
         }

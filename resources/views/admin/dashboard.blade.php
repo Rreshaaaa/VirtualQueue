@@ -59,4 +59,50 @@
 
     </div>
 </div>
+
+@if(session('calledQueue'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const queueNumber = '{{ session('calledQueue') }}';
+        const message = ` Calling Queue number {{ session('calledQueue') }}, please proceed to Window 1.`;
+        const repeatCount = 5;
+        let count = 0;
+
+        // Load beep sound
+        const beep = new Audio('{{ asset('sounds/beep.mp3') }}');
+
+        function speakQueue() {
+            if (count < repeatCount) {
+                // Play beep first
+                beep.play();
+
+                // Wait until beep finishes (~500ms) then speak
+                setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 1;
+                    utterance.pitch = 1;
+
+                    utterance.onend = function () {
+                        count++;
+                        setTimeout(speakQueue, 1000); // 1 sec between repeats
+                    };
+
+                    window.speechSynthesis.speak(utterance);
+                }, 1500); // Delay to allow beep to play
+            }
+        }
+
+        speakQueue();
+    });
+</script>
+@endif
+
+<script>
+    // Auto-refresh the entire page every 10 seconds
+    setInterval(function () {
+        window.location.reload();
+    }, 40000); // 10,000 milliseconds = 10 seconds
+</script>
 @endsection
+
