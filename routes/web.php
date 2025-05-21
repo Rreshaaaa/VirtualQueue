@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QueueController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\StudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,3 +62,8 @@ Route::middleware('auth:admin')->group(function () {
     Route::post('/admin/logout', [LogoutController::class, 'logoutAdmin'])->name('admin.logout');
 });
 
+Route::middleware(['auth:student'])->group(function () {
+    Route::get('/student/profile/show', [StudentController::class, 'show'])->name('student.profile.show');
+    Route::get('/student/profile/edit', [StudentController::class, 'edit'])->name('student.profile.edit');
+    Route::put('/student/profile', [StudentController::class, 'update'])->name('student.profile.update');
+});

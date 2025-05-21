@@ -16,12 +16,14 @@ class Student extends Authenticatable
     }
 
     protected $fillable = [
+        'student_number',
         'first_name',
         'middle_name',
         'last_name',
         'email',
         'password',
-        'student_number',
+        'contact_number',
+        'address',
     ];
 
     protected $hidden = [
@@ -44,10 +46,9 @@ class Student extends Authenticatable
 
     protected static function generateStudentNumber()
     {
-        // Example format: STU202504161234
-        $prefix = 'STU';
-        $date = now()->format('Ymd'); // 20250416
-        $random = rand(1000, 9999); // Random 4-digit number
-        return $prefix . $date . $random;
+        $prefix = 'STN';
+        $year = now()->format('Y'); // e.g. 2025
+        $random = rand(10000, 99999); // Random 5-digit number
+        return $prefix . $year . $random;
     }
 }

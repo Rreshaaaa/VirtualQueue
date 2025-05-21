@@ -39,9 +39,9 @@
                     <tbody>
                         @foreach($pendingQueues as $queue)
                         <tr>
-                            <td><strong>Q{{ $queue->queue_number }}</strong></td>
+                            <td><strong>{{ $queue->queue_number }}</strong></td>
                             <td>ENROLLMENT</td>
-                            <td>00:00</td> <!-- Replace with actual issue time -->
+                            <td>00:00</td>
                         </tr>
                         @endforeach
                     </tbody>
