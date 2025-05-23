@@ -15,23 +15,28 @@ class QueueController extends Controller
 {
     $studentQueue = auth()->guard('student')->user()
         ->queue()
-        ->where('status', 'pending') // Fetch only active queues
+        ->whereIn('status', ['pending', 'active'])
         ->latest('id')
         ->first();
 
     $queueNumber = $studentQueue ? $studentQueue->queue_number : null;
-    $isQueueActive = $studentQueue !== null; // If no active queue, set to false
+    $isQueueActive = $studentQueue !== null;
 
     $pendingQueues = Queue::where('status', 'pending')->get();
     $currentQueue = Queue::where('status', 'active')->first();
+
+    // Pull calledQueue from session if available
+    $calledQueue = session('calledQueue');
 
     return view('student.queue', [
         'queueNumber' => $queueNumber,
         'currentQueue' => $currentQueue ? $currentQueue->queue_number : null,
         'pendingQueues' => $pendingQueues,
-        'isQueueActive' => $isQueueActive
+        'isQueueActive' => $isQueueActive,
+        'calledQueue' => $calledQueue // pass it here
     ]);
 }
+
 
 
     // Admin dashboard method

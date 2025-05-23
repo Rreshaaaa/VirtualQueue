@@ -60,7 +60,7 @@
     </div>
 </div>
 
-@if(session('calledQueue'))
+{{-- @if(session('calledQueue'))
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const queueNumber = '{{ session('calledQueue') }}';
@@ -96,7 +96,7 @@
         speakQueue();
     });
 </script>
-@endif
+@endif --}}
 
 <script>
     // Auto-refresh the entire page every 10 seconds
